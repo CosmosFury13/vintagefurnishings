@@ -34,13 +34,23 @@ public class ModRecipeProvider extends RecipeProvider implements IConditionBuild
                     wood
             );
         }
-        stoneCutting(
-                writer,
-                RecipeCategory.BUILDING_BLOCKS,
-                BeamsBlocks.STONE_GLASS_RAILING.get(),
-                ForgeRegistries.ITEMS.getValue(new ResourceLocation("minecraft", "stone")),
-                4
-        );
+        for (String stone : BeamsItems.STONE_TYPES) {
+            Item ingredient = BeamsItems.getStoneBlock(stone);
+
+            for (String wood : BeamsItems.WOOD_TYPES) {
+                stoneCutting(writer, RecipeCategory.BUILDING_BLOCKS,
+                        BeamsBlocks.getStoneGlassRailing(stone, wood).get(),
+                        ingredient, 4);
+
+                stoneCutting(writer, RecipeCategory.BUILDING_BLOCKS,
+                        BeamsBlocks.getStoneArchedRailing(stone, wood).get(),
+                        ingredient, 4);
+
+                stoneCutting(writer, RecipeCategory.BUILDING_BLOCKS,
+                        BeamsBlocks.getStoneSimpleRailing(stone, wood).get(),
+                        ingredient, 4);
+            }
+        }
     }
 
     protected static void oreSmelting(Consumer<FinishedRecipe> pFinishedRecipeConsumer, List<ItemLike> pIngredients, RecipeCategory pCategory, ItemLike pResult, float pExperience, int pCookingTIme, String pGroup) {

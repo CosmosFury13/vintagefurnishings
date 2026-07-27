@@ -3,6 +3,7 @@ package net.cf.vintageefurn.datagen;
 import net.cf.vintageefurn.VintageFurn;
 import net.cf.vintageefurn.blocks.railing.RailingBlock;
 import net.cf.vintageefurn.registry.BeamsBlocks;
+import net.cf.vintageefurn.registry.BeamsItems;
 import net.minecraft.core.Direction;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceLocation;
@@ -10,6 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraftforge.client.model.generators.BlockStateProvider;
+import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -25,46 +27,63 @@ public class blockstategenerator extends BlockStateProvider {
 
     @Override
     protected void registerStatesAndModels() {
-        railingglassModel(
-                "stone_glass_railing",
-                new ResourceLocation("minecraft", "block/stone"),
-                new ResourceLocation("minecraft", "block/oak_planks")
-        );
-        railingBlockState(
-                BeamsBlocks.STONE_GLASS_RAILING,
-                "stone_glass_railing"
-        );
-        railingarchedModel(
-                "stone_arched_railing",
-                new ResourceLocation("minecraft", "block/stone"),
-                new ResourceLocation("minecraft", "block/oak_planks")
-        );
-        railingsimpleModel(
-                "stone_simple_railing",
-                new ResourceLocation("minecraft", "block/stone"),
-                new ResourceLocation("minecraft", "block/oak_planks")
-        );
-//        railingarchedModel(
-//                "andesite_cut_arched_railing",
-//                new ResourceLocation(VintageFurn.MOD_ID, "block/create/stone_types/cut/andesite_cut"),
-//                new ResourceLocation("minecraft", "block/oak_planks")
-//        );
-//        railingsimpleModel(
-//                "andesite_cut_simple_railing",
-//                new ResourceLocation(VintageFurn.MOD_ID, "block/create/stone_types/cut/andesite_cut"),
-//                new ResourceLocation("minecraft", "block/oak_planks")
-//        );
+
+        for (String stone : BeamsBlocks.STONE_TYPES) {
+
+            ResourceLocation stoneTexture = BeamsItems.getStoneTexture(stone);
+
+            for (String wood : BeamsBlocks.WOOD_TYPES) {
+
+                ResourceLocation woodTexture = mcLoc("block/" + wood + "_planks");
+
+                ModelFile glass = railingglassModel(
+                        stone + "_" + wood + "_glass_railing",
+                        stoneTexture,
+                        woodTexture
+                );
+
+                ModelFile arched = railingarchedModel(
+                        stone + "_" + wood + "_arched_railing",
+                        stoneTexture,
+                        woodTexture
+                );
+
+                ModelFile simple = railingsimpleModel(
+                        stone + "_" + wood + "_simple_railing",
+                        stoneTexture,
+                        woodTexture
+                );
+
+                railingBlockState(
+                        BeamsBlocks.getStoneGlassRailing(stone, wood),
+                        glass
+                );
+
+                railingBlockState(
+                        BeamsBlocks.getStoneArchedRailing(stone, wood),
+                        arched
+                );
+
+                railingBlockState(
+                        BeamsBlocks.getStoneSimpleRailing(stone, wood),
+                        simple
+                );
+            }
 
     }
+
+
+    }
+
 
     private void blockWithItem(RegistryObject<Block> blockRegistryObject) {
         simpleBlockWithItem(blockRegistryObject.get(), cubeAll(blockRegistryObject.get()));
     }
-    private void railingglassModel(String name,
+    private ModelFile railingglassModel(String name,
                               ResourceLocation base,
                               ResourceLocation rail) {
 
-        models().withExistingParent(name,
+        return models().withExistingParent(name,
                         modLoc("block/railing/template_glass_railing"))
                 .texture("base", base)
                 .texture("rail", rail)
@@ -72,47 +91,47 @@ public class blockstategenerator extends BlockStateProvider {
                 .texture("glass", mcLoc("block/glass"))
                 .texture("glass_edge", mcLoc("block/glass_pane_top"));
     }
-    private void railingarchedModel(String name,
+    private ModelFile railingarchedModel(String name,
                                    ResourceLocation base,
                                    ResourceLocation rail) {
 
-        models().withExistingParent(name,
+        return models().withExistingParent(name,
                         modLoc("block/railing/template_arched_railing"))
                 .texture("base", base)
                 .texture("rail", rail);
     }
-    private void railingsimpleModel(String name,
+    private ModelFile railingsimpleModel(String name,
                                     ResourceLocation base,
                                     ResourceLocation rail) {
 
-        models().withExistingParent(name,
-                        modLoc("block/railing/template_arched_railing"))
+        return models().withExistingParent(name,
+                        modLoc("block/railing/template_simple_railing"))
                 .texture("base", base)
                 .texture("rail", rail);
     }
-    private void railingBlockState(RegistryObject<? extends Block> block, String modelName) {
+    private void railingBlockState(RegistryObject<? extends Block> block, ModelFile model){
         var builder = getMultipartBuilder(block.get());
 
                 builder.part()
-                .modelFile(models().getExistingFile(modLoc("block/" + modelName)))
+                        .modelFile(model)
                 .rotationY(90)
                 .addModel()
                 .condition(NORTH, true);
 
                 builder.part()
-                .modelFile(models().getExistingFile(modLoc("block/" + modelName)))
+                        .modelFile(model)
                 .rotationY(270) // -90
                 .addModel()
                 .condition(SOUTH, true);
 
                 builder.part()
-                .modelFile(models().getExistingFile(modLoc("block/" + modelName)))
+                        .modelFile(model)
                 .rotationY(180)
                 .addModel()
                 .condition(EAST, true);
 
                 builder.part()
-                .modelFile(models().getExistingFile(modLoc("block/" + modelName)))
+                        .modelFile(model)
                 .addModel()
                 .condition(WEST, true);
     }

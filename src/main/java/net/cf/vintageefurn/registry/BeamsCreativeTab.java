@@ -27,7 +27,13 @@ public final class BeamsCreativeTab {
                                 }
 
                                 System.out.println("Adding railing");
-                                output.accept(BeamsBlocks.STONE_GLASS_RAILING.get());
+                                // Stone Railings
+                                for (String stone : BeamsItems.STONE_TYPES){
+                                    for (String wood : BeamsItems.WOOD_TYPES) {
+                                        output.accept(BeamsBlocks.getStoneGlassRailing(stone,wood).get());
+                                        output.accept(BeamsBlocks.getStoneArchedRailing(stone, wood).get());
+                                        output.accept(BeamsBlocks.getStoneSimpleRailing(stone, wood).get());
+                                    }}
                             })
                             .build()
             );

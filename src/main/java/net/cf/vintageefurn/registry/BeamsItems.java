@@ -92,16 +92,49 @@ public final class BeamsItems {
         return switch (stoneType) {
             case "stone", "mud_bricks", "deepslate_tiles" ->
                     new ResourceLocation("minecraft", "block/" + stoneType);
-            case "limestone","scorchia", "scoria"->
-                    new ResourceLocation("vintagefurn", "block/create/stone_types/" + stoneType);
+
+            case "limestone", "scoria", "scorchia" ->
+                    new ResourceLocation(
+                            VintageFurn.MOD_ID,
+                            "block/create/stone_types/" + stoneType
+                    );
 
             default -> {
-                String[] split = stoneType.split("_", 2);
+                String folder = stoneType.substring(stoneType.indexOf('_') + 1);
+
                 yield new ResourceLocation(
                         VintageFurn.MOD_ID,
-                        "block/create/stone_types/" + split[1] + "/" + split[0]
+                        "block/create/stone_types/" + folder + "/" + stoneType
                 );
             }
+        };
+    }
+    public static Item getStoneBlock(String stoneType) {
+        return switch (stoneType) {
+            // Vanilla
+            case "stone" -> Items.STONE;
+            case "mud_bricks" -> Items.MUD_BRICKS;
+            case "deepslate_tiles" -> Items.DEEPSLATE_TILES;
+
+            // Create
+            case "andesite_cut" ->
+                    ForgeRegistries.ITEMS.getValue(new ResourceLocation("create", "cut_andesite"));
+            case "granite_cut" ->
+                    ForgeRegistries.ITEMS.getValue(new ResourceLocation("create", "cut_granite"));
+            case "diorite_cut" ->
+                    ForgeRegistries.ITEMS.getValue(new ResourceLocation("create", "cut_diorite"));
+            case "limestone_cut" ->
+                    ForgeRegistries.ITEMS.getValue(new ResourceLocation("create", "cut_limestone"));
+            case "asurine_cut" ->
+                    ForgeRegistries.ITEMS.getValue(new ResourceLocation("create", "cut_asurine"));
+            case "ochrum_cut" ->
+                    ForgeRegistries.ITEMS.getValue(new ResourceLocation("create", "cut_ochrum"));
+            case "crimsite_cut" ->
+                    ForgeRegistries.ITEMS.getValue(new ResourceLocation("create", "cut_crimsite"));
+            case "veridium_cut" ->
+                    ForgeRegistries.ITEMS.getValue(new ResourceLocation("create", "cut_veridium"));
+
+            default -> throw new IllegalArgumentException("Unknown stone type: " + stoneType);
         };
     }
 

@@ -4,7 +4,9 @@ package net.cf.vintageefurn.compat.everycomp;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import net.cf.vintageefurn.VintageFurn;
+import net.cf.vintageefurn.datagen.blockstategenerator;
 import net.cf.vintageefurn.items.BeamItem;
+import net.cf.vintageefurn.registry.BeamsBlocks;
 import net.cf.vintageefurn.registry.BeamsItems;
 import net.cf.vintageefurn.registry.BeamsWoodTypeRegistry;
 import net.mehvahdjukaar.every_compat.EveryCompat;
@@ -70,16 +72,81 @@ public final class BeamsEveryCompatModule extends SimpleModule {
     @Override
     public void onModSetup() {
         super.onModSetup();
+
         for (var entry : beamItems.items.entrySet()) {
             WoodType woodType = entry.getKey();
             BeamItem item = entry.getValue();
 
             ResourceLocation planksId = BuiltInRegistries.BLOCK.getKey(woodType.planks);
             ResourceLocation planksTexture = new ResourceLocation(
-                    planksId.getNamespace(), "block/" + planksId.getPath());
+                    planksId.getNamespace(),
+                    "block/" + planksId.getPath());
 
-            BeamsWoodTypeRegistry.register(woodType.getId().toString(), item, planksTexture);
+            BeamsWoodTypeRegistry.register(
+                    woodType.getId().toString(),
+                    item,
+                    planksTexture,
+                    woodType
+            );
         }
+    }
+    private static JsonElement glassRailingModel(ResourceLocation stoneTexture,
+                                                 ResourceLocation woodTexture) {
+
+        String json = """
+    {
+      "parent": "vintagefurn:block/railing/template_glass_railing",
+      "textures": {
+        "base": "%s",
+        "rail": "%s",
+        "holder": "%s",
+        "glass": "minecraft:block/glass",
+        "glass_edge": "minecraft:block/glass_pane_top"
+      }
+    }
+    """.formatted(
+                stoneTexture,
+                woodTexture,
+                woodTexture
+        );
+
+        return JsonParser.parseString(json);
+    }
+    private static JsonElement archedRailingModel(ResourceLocation stoneTexture,
+                                                  ResourceLocation woodTexture) {
+
+        String json = """
+    {
+      "parent": "vintagefurn:block/railing/template_arched_railing",
+      "textures": {
+        "base": "%s",
+        "rail": "%s"
+      }
+    }
+    """.formatted(
+                stoneTexture,
+                woodTexture
+        );
+
+        return JsonParser.parseString(json);
+    }
+    private static JsonElement simpleRailingModel(ResourceLocation stoneTexture,
+                                                  ResourceLocation woodTexture) {
+
+        String json = """
+    {
+      "parent": "vintagefurn:block/railing/template_simple_railing",
+      "textures": {
+        "base": "%s",
+        "rail": "%s"
+      }
+    }
+    """.formatted(
+                stoneTexture,
+                woodTexture
+        );
+
+        return JsonParser.parseString(json);
     }
 
     @Override
@@ -98,6 +165,49 @@ public final class BeamsEveryCompatModule extends SimpleModule {
                         itemId.getNamespace(), itemId.getPath());
 
                 sink.addItemModel(modelId, beamItemModel(texture));
+                for (String stone : BeamsBlocks.STONE_TYPES) {
+
+                    ResourceLocation stoneTexture = BeamsItems.getStoneTexture(stone);
+
+                    String wood = woodType.getId().getPath();
+
+                    ResourceLocation glassId = new ResourceLocation(
+                            VintageFurn.MOD_ID,
+                            "block/" + stone + "_" + wood + "_glass_railing");
+
+                    ResourceLocation archedId = new ResourceLocation(
+                            VintageFurn.MOD_ID,
+                            "block/" + stone + "_" + wood + "_arched_railing");
+
+                    ResourceLocation simpleId = new ResourceLocation(
+                            VintageFurn.MOD_ID,
+                            "block/" + stone + "_" + wood + "_simple_railing");
+
+                    sink.addBlockModel(
+                            glassId,
+                            glassRailingModel(stoneTexture, texture));
+
+                    sink.addBlockModel(
+                            archedId,
+                            archedRailingModel(stoneTexture, texture));
+
+                    sink.addBlockModel(
+                            simpleId,
+                            simpleRailingModel(stoneTexture, texture));
+
+                    sink.addBlockState(
+                            glassId,
+                            railingBlockState(glassId));
+
+                    sink.addBlockState(
+                            archedId,
+                            railingBlockState(archedId));
+
+                    sink.addBlockState(
+                            simpleId,
+                            railingBlockState(simpleId));
+                }
+
             }
         });
     }
@@ -110,6 +220,49 @@ public final class BeamsEveryCompatModule extends SimpleModule {
             return new ResourceLocation(
                     planksId.getNamespace(), "block/" + planksId.getPath());
         }
+    }
+    private static JsonElement railingBlockState(ResourceLocation model) {
+
+        String json = """
+    {
+      "multipart": [
+        {
+          "when": { "north": "true" },
+          "apply": {
+            "model": "%s",
+            "y": 90
+          }
+        },
+        {
+          "when": { "south": "true" },
+          "apply": {
+            "model": "%s",
+            "y": 270
+          }
+        },
+        {
+          "when": { "east": "true" },
+          "apply": {
+            "model": "%s",
+            "y": 180
+          }
+        },
+        {
+          "when": { "west": "true" },
+          "apply": {
+            "model": "%s"
+          }
+        }
+      ]
+    }
+    """.formatted(
+                model,
+                model,
+                model,
+                model
+        );
+
+        return JsonParser.parseString(json);
     }
 
     private static JsonElement beamItemModel(ResourceLocation planksTexture) {

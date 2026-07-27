@@ -30,7 +30,8 @@ public class itemmodelgenerator extends ItemModelProvider {
     @Override
     protected void registerModels() {
         BeamsItems.getBeamItems().forEach(this::beamItem);
-        railingItems("stone");
+
+        railingItems();
     }
 
     private ItemModelBuilder simpleItem(RegistryObject<Item> item) {
@@ -39,13 +40,17 @@ public class itemmodelgenerator extends ItemModelProvider {
                 new ResourceLocation(VintageFurn.MOD_ID,"item/" + item.getId().getPath()));
     }
     private ItemModelBuilder blockItem(String name) {
-        return withExistingParent(name,
+        return withExistingParent("item/" + name,
                 modLoc("block/" + name));
     }
-    private void railingItems(String stoneType) {
-        blockItem(stoneType + "_glass_railing");
-        blockItem(stoneType + "_arched_railing");
-        blockItem(stoneType + "_simple_railing");
+    private void railingItems() {
+        for (String stone : BeamsItems.STONE_TYPES) {
+            for (String wood : BeamsItems.WOOD_TYPES) {
+                blockItem(stone + "_" + wood + "_glass_railing");
+                blockItem(stone + "_" + wood + "_arched_railing");
+                blockItem(stone + "_" + wood + "_simple_railing");
+            }
+        }
     }
     private ItemModelBuilder beamItem(String woodType, RegistryObject<BeamItem> beam) {
         return getBuilder(beam.getId().getPath())

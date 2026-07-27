@@ -23,6 +23,8 @@ public class DataGenerators {
 
         generator.addProvider(event.includeClient(), new blockstategenerator(packOutput, existingFileHelper));
         generator.addProvider(event.includeClient(), new itemmodelgenerator(packOutput, existingFileHelper));
+        generator.addProvider(event.includeClient(), new languagegenerator(packOutput));
+
 
 
 

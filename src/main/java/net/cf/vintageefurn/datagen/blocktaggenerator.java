@@ -2,9 +2,11 @@ package net.cf.vintageefurn.datagen;
 
 import net.cf.vintageefurn.VintageFurn;
 import net.cf.vintageefurn.registry.BeamsBlocks;
+import net.cf.vintageefurn.registry.BeamsItems;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
+import net.minecraft.data.tags.IntrinsicHolderTagsProvider;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
@@ -25,15 +27,20 @@ public class blocktaggenerator extends BlockTagsProvider {
                     Registries.BLOCK,
                     new ResourceLocation("create", "moveable_empty_collider")
             );
+
     @Override
     protected void addTags(HolderLookup.Provider pProvider) {
 
 
-        this.tag(BlockTags.MINEABLE_WITH_PICKAXE)
-                .add(BeamsBlocks.STONE_GLASS_RAILING.get())
-//                .add(BeamsBlocks.ANDESITE_CUT_ARCHED_RAILING.get())
-//                .add(BeamsBlocks.ANDESITE_CUT_SIMPLE_RAILING.get())
-                ;
+        IntrinsicHolderTagsProvider.IntrinsicTagAppender<Block> pickaxe =
+                tag(BlockTags.MINEABLE_WITH_PICKAXE);
+        for (String stone : BeamsItems.STONE_TYPES) {
+
+            for (String wood : BeamsItems.WOOD_TYPES) {
+                pickaxe.add(BeamsBlocks.getStoneArchedRailing(stone, wood).get());
+                pickaxe.add(BeamsBlocks.getStoneArchedRailing(stone, wood).get());
+                pickaxe.add(BeamsBlocks.getStoneSimpleRailing(stone, wood).get());
+            }}
 
 
 

@@ -16,9 +16,42 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.function.Supplier;
 
 public final class BeamsBlocks {
+    public static final String[] STONE_TYPES = {
+            "andesite_cut",
+            "granite_cut",
+            "diorite_cut",
+            "limestone_cut",
+            "asurine_cut",
+            "ochrum_cut",
+            "crimsite_cut",
+            "veridium_cut",
+            "stone",
+            "mud_bricks",
+            "deepslate_tiles"
+    };
+    public static final String[] WOOD_TYPES = {
+            "oak",
+            "spruce",
+            "birch",
+            "jungle",
+            "acacia",
+            "dark_oak",
+            "mangrove",
+            "cherry",
+            "crimson",
+            "warped",
+            "bamboo"
+    };
+    private static final Map<String, RegistryObject<Block>> STONE_GLASS_RAILING = new LinkedHashMap<>();
+    private static final Map<String, RegistryObject<Block>> STONE_ARCHED_RAILING = new LinkedHashMap<>();
+    private static final Map<String, RegistryObject<Block>> STONE_SIMPLE_RAILING = new LinkedHashMap<>();
+
+
 
     public static final DeferredRegister<Block> BLOCKS =
             DeferredRegister.create(ForgeRegistries.BLOCKS, VintageFurn.MOD_ID);
@@ -28,12 +61,44 @@ public final class BeamsBlocks {
                     "beam_anchor",
                     () -> new BeamAnchorBlock(beamAnchorProperties())
             );
-    public static final RegistryObject<Block> STONE_GLASS_RAILING =
-            registerBlock("stone_glass_railing",
-                    () -> new RailingBlock(
-                            BlockBehaviour.Properties.copy(Blocks.STONE)
-                                    .strength(2.0f)
-                                    .noOcclusion()));
+
+
+    static {
+        for (String stone : STONE_TYPES) {
+            for (String wood : WOOD_TYPES) {
+
+                String key = stone + "_" + wood;
+
+                STONE_GLASS_RAILING.put(key,
+                        registerBlock(
+                                key + "_glass_railing",
+                                () -> new RailingBlock(
+                                        BlockBehaviour.Properties.copy(Blocks.STONE)
+                                                .strength(2.0F)
+                                                .noOcclusion()
+                                )));
+
+                STONE_ARCHED_RAILING.put(key,
+                        registerBlock(
+                                key + "_arched_railing",
+                                () -> new RailingBlock(
+                                        BlockBehaviour.Properties.copy(Blocks.STONE)
+                                                .strength(2.0F)
+                                                .noOcclusion()
+                                )));
+
+                STONE_SIMPLE_RAILING.put(key,
+                        registerBlock(
+                                key + "_simple_railing",
+                                () -> new RailingBlock(
+                                        BlockBehaviour.Properties.copy(Blocks.STONE)
+                                                .strength(2.0F)
+                                                .noOcclusion()
+                                )));
+            }
+        }
+
+    }
 
     private static BlockBehaviour.Properties beamAnchorProperties() {
         return BlockBehaviour.Properties.of()
@@ -48,6 +113,20 @@ public final class BeamsBlocks {
                 .isViewBlocking((state, level, pos) -> false)
                 .pushReaction(PushReaction.DESTROY);
     }
+    public static RegistryObject<Block> getStoneGlassRailing(String stone, String wood) {
+        return STONE_GLASS_RAILING.get(stone + "_" + wood);
+    }
+
+    public static RegistryObject<Block> getStoneArchedRailing(String stone, String wood) {
+        return STONE_ARCHED_RAILING.get(stone + "_" + wood);
+    }
+
+    public static RegistryObject<Block> getStoneSimpleRailing(String stone, String wood) {
+        return STONE_SIMPLE_RAILING.get(stone + "_" + wood);
+    }
+
+
+
     private static <T extends Block> RegistryObject<T> registerBlock(String name, Supplier<T> block) {
         RegistryObject<T> toReturn = BLOCKS.register(name, block);
         registerBlockItem(name, toReturn);
